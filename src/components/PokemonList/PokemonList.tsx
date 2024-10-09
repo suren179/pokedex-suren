@@ -1,20 +1,35 @@
+import { lazy, Suspense } from 'react';
 import { createUseStyles } from 'react-jss';
 import { useGetPokemons } from '../../hooks/useGetPokemons';
 import { PokemonItem } from '../PokemonItem';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ErrorMsg } from '../ErrorMsg';
 import { Loader } from '../Loader';
+import { ROUTES } from '../../constants';
 import AutoSizer from 'react-virtualized-auto-sizer';
 //@ts-ignore
 import { FixedSizeList as List } from 'react-window';
 
+const PokemonInfoDialog = lazy(() =>
+  import('../PokemonInfoDialog').then((module) => ({
+    default: module.PokemonInfoDialog,
+  })),
+);
+
 export const PokemonList = () => {
+  const { id } = useParams();
   const classes = useStyles();
   const { pokemons, loading, searchText, setSearchText, error } =
     useGetPokemons();
 
-  const onClick = (id: string) => {};
+  const navigate = useNavigate();
+
+  const onClick = (id: string) => {
+    navigate(`${ROUTES.POKEMON_LIST}/${id}`);
+  };
   return (
     <div className={classes.root}>
       <Typography variant="h3" component="h3">
@@ -83,6 +98,13 @@ export const PokemonList = () => {
               </AutoSizer>
             </div>
           )}
+        </>
+      )}
+      {id && (
+        <>
+          <Suspense fallback={<Loader />}>
+            <PokemonInfoDialog />
+          </Suspense>
         </>
       )}
     </div>

@@ -62,6 +62,14 @@ function App() {
                         </Suspense>
                       }
                     />
+                    <Route
+                      path={ROUTES.POKEMON_LIST + '/:id'}
+                      element={
+                        <Suspense fallback={<Loader />}>
+                          <ListPage />
+                        </Suspense>
+                      }
+                    />
                   </Routes>
                 </div>
               </div>
