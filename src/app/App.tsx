@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createUseStyles } from 'react-jss';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LayoutProvider } from '../contexts';
@@ -6,26 +6,44 @@ import { Nav } from '../components';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './client';
 import { ListPage, Home } from '../screens';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { ROUTES } from '../constants';
 
 function App() {
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          type: 'dark',
+          background: {
+            default: '#171E2b', // Background color moved here
+          },
+        },
+      }),
+    [],
+  );
   const classes = useStyles();
   return (
     <ApolloProvider client={client}>
-      <LayoutProvider>
-        <div className={classes.root}>
-          <BrowserRouter>
-            <Nav />
-            <div className={classes.content}>
-              <div className={classes.scrollableArea}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/pokemon" element={<ListPage />} />
-                </Routes>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <LayoutProvider>
+          <div className={classes.root}>
+            <BrowserRouter>
+              <Nav />
+              <div className={classes.content}>
+                <div className={classes.scrollableArea}>
+                  <Routes>
+                    <Route path={ROUTES.HOME} element={<Home />} />
+                    <Route path={ROUTES.POKEMON_LIST} element={<ListPage />} />
+                  </Routes>
+                </div>
               </div>
-            </div>
-          </BrowserRouter>
-        </div>
-      </LayoutProvider>
+            </BrowserRouter>
+          </div>
+        </LayoutProvider>
+      </ThemeProvider>
     </ApolloProvider>
   );
 }
@@ -54,7 +72,7 @@ const useStyles = createUseStyles(
       overflow: 'auto',
     },
   },
-  { name: 'App' }
+  { name: 'App' },
 );
 
 export default App;

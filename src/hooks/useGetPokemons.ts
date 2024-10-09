@@ -1,15 +1,18 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 
-export type Pokemon = {
+export type PokemonI = {
   id: string;
   name: string;
+  number: string;
+  types: [string];
+  image: string;
 };
 
 export type PokemonOption = {
-  value: Pokemon['id'];
-  label: Pokemon['name'];
+  value: PokemonI['id'];
+  label: PokemonI['name'];
 };
 
 export const GET_POKEMONS = gql`
@@ -17,6 +20,9 @@ export const GET_POKEMONS = gql`
     pokemons(first: $first) {
       id
       name
+      number
+      types
+      image
     }
   }
 `;
@@ -28,16 +34,33 @@ export const useGetPokemons = () => {
     },
   });
 
-  const pokemons: Pokemon[] = useMemo(() => data?.pokemons || [], [data]);
+  const [searchText, setSearchText] = useState<string>('');
+
+  const filterPokemons = (pokemon: PokemonI) => {
+    const nameMatch = pokemon.name
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+    const typesMatch = pokemon.types.some((type: string) =>
+      type.toLowerCase().includes(searchText.toLowerCase()),
+    );
+    return nameMatch || typesMatch;
+  };
+
+  const pokemons: PokemonI[] = useMemo(() => {
+    if (!data?.pokemons) return [];
+    return data.pokemons.filter(filterPokemons);
+  }, [data, filterPokemons, searchText]);
 
   const pokemonOptions: PokemonOption[] = useMemo(
-    () => pokemons.map((p: Pokemon) => ({ value: p.id, label: p.name })),
-    [pokemons]
+    () => pokemons.map((p: PokemonI) => ({ value: p.id, label: p.name })),
+    [pokemons],
   );
 
   return {
     pokemons,
     pokemonOptions,
+    searchText,
+    setSearchText,
     ...queryRes,
   };
 };
