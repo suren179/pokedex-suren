@@ -1,14 +1,25 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, lazy, Suspense } from 'react';
 import { createUseStyles } from 'react-jss';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LayoutProvider } from '../contexts';
-import { Nav } from '../components';
+import { Nav } from '../components/Nav';
 import { ApolloProvider } from '@apollo/client';
 import { client } from './client';
-import { ListPage, Home } from '../screens';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ROUTES } from '../constants';
+import { Loader } from '../components/Loader';
+
+const Home = lazy(() =>
+  import('../screens/Home').then((module) => ({
+    default: module.Home,
+  })),
+);
+const ListPage = lazy(() =>
+  import('../screens/ListPage').then((module) => ({
+    default: module.ListPage,
+  })),
+);
 
 function App() {
   const theme = useMemo(
@@ -35,8 +46,22 @@ function App() {
               <div className={classes.content}>
                 <div className={classes.scrollableArea}>
                   <Routes>
-                    <Route path={ROUTES.HOME} element={<Home />} />
-                    <Route path={ROUTES.POKEMON_LIST} element={<ListPage />} />
+                    <Route
+                      path={ROUTES.HOME}
+                      element={
+                        <Suspense fallback={<Loader />}>
+                          <Home />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={ROUTES.POKEMON_LIST}
+                      element={
+                        <Suspense fallback={<Loader />}>
+                          <ListPage />
+                        </Suspense>
+                      }
+                    />
                   </Routes>
                 </div>
               </div>

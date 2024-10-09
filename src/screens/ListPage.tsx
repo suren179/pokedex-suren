@@ -1,6 +1,6 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
-import { PokemonList } from '../components';
+import { PokemonList } from '../components/PokemonList';
 
 export const ListPage = () => {
   const classes = useStyles();
@@ -19,5 +19,5 @@ const useStyles = createUseStyles(
       height: '100%',
     },
   },
-  { name: 'ListPage' }
+  { name: 'ListPage' },
 );
